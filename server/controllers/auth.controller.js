@@ -41,7 +41,9 @@ const signup = async (req, res) => {
       user,
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res
+      .status(500)
+      .json({ message: error.message || "Something Went Wrong" });
   }
 };
 
@@ -74,8 +76,16 @@ const login = async (req, res) => {
       user,
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res
+      .status(500)
+      .json({ message: error?.message || "Something Went Wrong" });
   }
 };
 
-export { signup, login };
+const getUserInfo = async (req, res) => {
+  res
+    .status(200)
+    .json({ message: "User fetched successfully", user: req.user });
+};
+
+export { signup, login, getUserInfo };

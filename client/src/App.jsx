@@ -3,6 +3,9 @@ import Auth from "./pages/auth";
 import Chat from "./pages/chat";
 import Profile from "./pages/profile";
 import { useAppStore } from "./store/Index";
+import { useEffect, useState } from "react";
+import apiClient from "./lib/apiClient";
+import { GET_USER_INFO } from "./utils/constants";
 
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
@@ -13,10 +16,41 @@ const PrivateRoute = ({ children }) => {
 const AuthRoute = ({ children }) => {
   const { userInfo } = useAppStore();
   const isAuthenticated = !!userInfo;
-  return isAuthenticated ? <Navigate to="/auth" /> : children;
+  return isAuthenticated ? <Navigate to="/chat" /> : children;
 };
 
 const App = () => {
+  const { userInfo, setUserInfo } = useAppStore();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const response = await apiClient.get(GET_USER_INFO, {
+          withCredentials: true,
+        });
+        console.log(response);
+        if (response.status == "200" && response.data.user) {
+          setUserInfo(response.data.user);
+        }
+      } catch (error) {
+        setUserInfo(undefined);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!userInfo) {
+      getUserData();
+    } else {
+      setLoading(false);
+    }
+  }, [userInfo, setUserInfo]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
