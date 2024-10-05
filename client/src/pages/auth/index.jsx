@@ -4,15 +4,111 @@ import background from "@/assets/auth-image.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import apiClient from "@/lib/apiClient";
+import { LOGIN_ROUTE, SIGNUP_ROUTE } from "@/utils/constants";
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleLogin = async () => {};
+  const handleLogin = async () => {
+    if (!email.length) {
+      toast.error("Email is Required");
+      return;
+    }
 
-  const handleSignUp = async () => {};
+    if (!email.match(/^[^@]+@[^@]+\.[^@]+$/)) {
+      toast.error("Email format is wrong");
+      return;
+    }
+
+    if (!password.length) {
+      toast.error("Password is Required");
+      return;
+    }
+
+    // make request
+    try {
+      const response = await apiClient.post(
+        LOGIN_ROUTE,
+        { email, password },
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.status == "200") {
+        toast.message(response.data.message);
+        setEmail("");
+        setPassword("");
+        if (response.data.message.user._id) {
+          if (response.data.message.user.profileSetup) navigate("/chat");
+          else navigate("/profile");
+        }
+      }
+
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+      return;
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (!email.length) {
+      toast.error("Email is Requiredl");
+      return;
+    }
+
+    if (!email.match(/^[^@]+@[^@]+\.[^@]+$/)) {
+      toast.error("Email format is wrong");
+      return;
+    }
+
+    if (!password.length) {
+      toast.error("Password is Requiredl");
+      return;
+    }
+
+    if (password.length < 4) {
+      toast.error("Password is too short");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords are Not Matching.");
+      return;
+    }
+
+    // make request
+    try {
+      const response = await apiClient.post(
+        SIGNUP_ROUTE,
+        { email, password },
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.status == "201") {
+        toast.message(response.data.message);
+        navigate("/profile");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+      }
+
+      console.log(response);
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+      return;
+    }
+  };
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
