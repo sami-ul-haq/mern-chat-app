@@ -8,9 +8,11 @@ import { toast } from "sonner";
 import apiClient from "@/lib/apiClient";
 import { LOGIN_ROUTE, SIGNUP_ROUTE } from "@/utils/constants";
 import { useNavigate } from "react-router-dom";
+import { useAppStore } from "@/store";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { setUserInfo } = useAppStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,15 +47,14 @@ const Auth = () => {
         toast.message(response.data.message);
         setEmail("");
         setPassword("");
-        if (response.data.message.user._id) {
-          if (response.data.message.user.profileSetup) navigate("/chat");
+        if (response.data.user._id) {
+          setUserInfo(response.data.user);
+          if (response.data.user.profileSetup) navigate("/chat");
           else navigate("/profile");
         }
       }
-
       console.log(response);
     } catch (error) {
-      console.log(error);
       toast.error(error?.response?.data?.message);
       return;
     }
@@ -97,13 +98,12 @@ const Auth = () => {
 
       if (response.status == "201") {
         toast.message(response.data.message);
+        setUserInfo(response.data.user);
         navigate("/profile");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
       }
-
-      console.log(response);
     } catch (error) {
       toast.error(error?.response?.data?.message);
       return;
