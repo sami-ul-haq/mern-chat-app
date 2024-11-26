@@ -1,4 +1,5 @@
 import { User } from "../models/auth.model.js";
+import fs, { unlinkSync } from "fs";
 
 const options = {
   httpOnly: true,
@@ -88,4 +89,100 @@ const getUserInfo = async (req, res) => {
     .json({ message: "User fetched successfully", user: req.user });
 };
 
-export { signup, login, getUserInfo };
+const updateProfile = async (req, res) => {
+  try {
+    const { _id } = req.user;
+
+    const { firstName, lastName, color } = req.body;
+
+    if (!firstName || !lastName) {
+      return res.status(404).json({ message: "All fields are required" });
+    }
+
+    const userData = await User.findByIdAndUpdate(
+      _id,
+      {
+        firstName,
+        lastName,
+        color,
+        profileSetup: true,
+      },
+      { new: true, runValidators: true }
+    );
+
+    return res
+      .status(200)
+      .json({ message: "user updated sucessfully", user: userData });
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ message: "Something went wrong while updating the fields" });
+  }
+};
+
+const addProfileImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "File is Required" });
+    }
+    const date = Date.now();
+    let fileName = "uploads/profiles/" + date + req.file.originalname;
+    fs.renameSync(req.file.path, fileName);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        profileImage: fileName,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    return res.status(200).json({
+      message: "Image Updated Successfull",
+      image: updatedUser.profileImage,
+    });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ message: "Something Went wrong while udating the image" });
+  }
+};
+
+const removeProfileImage = async (req, res) => {
+  try {
+    const { _id } = req.user;
+
+    const user = await User.findById(_id);
+
+    if (!user) {
+      return res.status(400).json({ message: "User Not Found." });
+    }
+
+    if (user.image) {
+      unlinkSync(user.image);
+    }
+
+    user.image = null;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Profile Image Deleted Successfull" });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ message: "Something Went wrong while deleting the image" });
+  }
+};
+
+export {
+  signup,
+  login,
+  getUserInfo,
+  updateProfile,
+  addProfileImage,
+  removeProfileImage,
+};
