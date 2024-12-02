@@ -1,5 +1,5 @@
 import { User } from "../models/auth.model.js";
-import fs, { unlinkSync } from "fs";
+import fs, { renameSync, unlinkSync } from "fs";
 
 const options = {
   httpOnly: true,
@@ -127,7 +127,7 @@ const addProfileImage = async (req, res) => {
     }
     const date = Date.now();
     let fileName = "uploads/profiles/" + date + req.file.originalname;
-    fs.renameSync(req.file.path, fileName);
+    renameSync(req.file.path, fileName);
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
@@ -142,7 +142,7 @@ const addProfileImage = async (req, res) => {
 
     return res.status(200).json({
       message: "Image Updated Successfull",
-      image: updatedUser.profileImage,
+      profileImage: updatedUser.profileImage,
     });
   } catch (error) {
     return res
@@ -161,11 +161,11 @@ const removeProfileImage = async (req, res) => {
       return res.status(400).json({ message: "User Not Found." });
     }
 
-    if (user.image) {
-      unlinkSync(user.image);
+    if (user.profileImage) {
+      unlinkSync(user.profileImage);
     }
 
-    user.image = null;
+    user.profileImage = null;
     await user.save();
 
     return res

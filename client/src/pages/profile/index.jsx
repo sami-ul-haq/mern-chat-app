@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import apiClient from "@/lib/apiClient";
 import {
   HOST,
+  REMOVE_PROFILE_IMAGE_ROUTE,
   UPDATE_PROFILE_IMAGE_ROUTE,
   UPDATE_PROFILE_ROUTE,
 } from "@/utils/constants";
@@ -19,6 +20,8 @@ import {
 const Profile = () => {
   const { userInfo, setUserInfo } = useAppStore();
   const navigate = useNavigate();
+
+  console.log("userInfo", userInfo);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -35,8 +38,8 @@ const Profile = () => {
       setselectedColor(userInfo.color);
     }
 
-    if (userInfo.image) {
-      setImage(`${HOST}/${userInfo.image}`);
+    if (userInfo.profileImage) {
+      setImage(`${HOST}/${userInfo.profileImage}`);
     }
   }, [userInfo]);
 
@@ -60,10 +63,11 @@ const Profile = () => {
           { firstName, lastName, color: selectedColor },
           { withCredentials: true }
         );
-        if ((response.status == 200) & response.data) {
-          setUserInfo({ ...response.data });
+        if (response.status === 200 && response.data.user) {
+          setUserInfo({ ...response.data.user });
+          console.log("response", response);
           toast.success("Profile Updated Successfully");
-          navigate("/chat");
+          // navigate("/chat");
         }
       } catch (error) {
         toast.error("Something Went Wrong", error.message);
@@ -97,12 +101,10 @@ const Profile = () => {
         }
       );
 
-      console.log("resposne", resposne);
-
-      if (resposne.status === 200 && resposne.data.image) {
+      if (resposne.status === 200 && resposne.data.profileImage) {
         setUserInfo({
           ...userInfo,
-          image: resposne.data.image,
+          profileImage: resposne.data.profileImage,
         });
         toast.success("Image Updated Successfully");
       }
@@ -111,6 +113,18 @@ const Profile = () => {
 
   const handleDeleteImage = async () => {
     try {
+      const response = await apiClient.delete(REMOVE_PROFILE_IMAGE_ROUTE, {
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        setUserInfo({
+          ...userInfo,
+          profileImage: null,
+        });
+        setImage(null);
+      }
+
       toast.success("Image Deleted Successfully");
     } catch (error) {
       toast.error("Something Went Wrong", error.message);

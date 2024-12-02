@@ -24,6 +24,6 @@ router
   .route("/add-profile-image")
   .post(verifyJWT, upload.single("profile-image"), addProfileImage);
 
-router.route("/remove-profile-image").post(verifyJWT, removeProfileImage);
+router.route("/remove-profile-image").delete(verifyJWT, removeProfileImage);
 
 export default router;
