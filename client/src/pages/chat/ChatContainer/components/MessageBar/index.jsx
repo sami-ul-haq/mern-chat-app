@@ -34,9 +34,9 @@ const MessageBar = () => {
         <input
           type="text"
           className="flex-1 p-5 bg-transparent rounded-md focus:border-none focus:outline-none"
-          placeholder="Enter Mesaage"
+          placeholder="Enter Message"
           value={message}
-          onChange={() => setMessage(e.target.value)}
+          onChange={(e) => setMessage(e.target.value)}
         />
         <button className="text-neutral-500 focus:border-none focus:outline-none hover:text-white duration-500 transition-all">
           <GrAttachment className="text-2xl" />

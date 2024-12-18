@@ -4,6 +4,7 @@ import fs, { renameSync, unlinkSync } from "fs";
 const options = {
   httpOnly: true,
   secure: true,
+  sameSite: "None",
 };
 
 const signup = async (req, res) => {
@@ -178,6 +179,19 @@ const removeProfileImage = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+    return res
+      .status(200)
+      .clearCookie("accessToken", options)
+      .json({ message: "Logout Successfull" });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ message: "Something Went wrong while deleting the image" });
+  }
+};
+
 export {
   signup,
   login,
@@ -185,4 +199,5 @@ export {
   updateProfile,
   addProfileImage,
   removeProfileImage,
+  logout,
 };

@@ -6,6 +6,7 @@ import {
   updateProfile,
   addProfileImage,
   removeProfileImage,
+  logout,
 } from "../controllers/auth.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import multer from "multer";
@@ -25,5 +26,6 @@ router
   .post(verifyJWT, upload.single("profile-image"), addProfileImage);
 
 router.route("/remove-profile-image").delete(verifyJWT, removeProfileImage);
+router.route("/logout").post(logout);
 
 export default router;
