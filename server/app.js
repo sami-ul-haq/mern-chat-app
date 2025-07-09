@@ -23,9 +23,12 @@ app.use(cookieParser());
 // Routes Import
 import authRoutes from "./routes/auth.route.js";
 import contactRoutes from "./routes/contact.route.js";
+import messagesRoutes from "./routes/messages.route.js";
 
 //Routes Declaration
 app.use("/api/auth", authRoutes);
 app.use("/api/contacts", contactRoutes);
+app.use("/api/messages", messagesRoutes);
+
 
 export default app;
